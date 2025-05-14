@@ -1,34 +1,84 @@
+
+
+// events/messageReactionAdd.js
+// const fs = require('fs');
+// const path = require('path');
+// const filePath = path.join(__dirname, '../reactionMessage.json');
+
+
+// module.exports = {
+//   name: 'messageReactionAdd',
+//   async execute(reaction, user) {
+//     console.log(`📥 Reaction detected from ${user.tag} on emoji: ${reaction.emoji.name}`);
+
+//     if (reaction.partial) {
+//       try {
+//         await reaction.fetch();
+//       } catch (error) {
+//         console.error('❌ Failed to fetch partial reaction:', error);
+//         return;
+//       }
+//     }
+
+//     if (user.bot) return;
+
+//     const { message, emoji } = reaction;
+//     const { guild, client } = message;
+
+//     if (client.reactionRoleMessageId !== message.id) {
+//       console.log(`⛔ Ignored reaction on message ${message.id} (expected ${client.reactionRoleMessageId})`);
+//       return;
+//     }
+
+//     const roleMap = {
+//       '🔴': '1371560724568080465',
+//       '🔵': '1371561017091424359',
+//       '🟢': '1371561132426530976',
+//     };
+
+//     const roleId = roleMap[emoji.name];
+//     if (!roleId) {
+//       console.log(`⚠️ Unknown emoji: ${emoji.name}`);
+//       return;
+//     }
+
+//     try {
+//       const member = await guild.members.fetch(user.id);
+//       await member.roles.add(roleId);
+//       console.log(`✅ Gave ${emoji.name} role to ${user.tag}`);
+//     } catch (err) {
+//       console.error('❌ Error assigning role:', err);
+//     }
+//   },
+// };
+
+
+
+const { Events } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
+
+const reactionDataPath = path.join(__dirname, '..', 'reactionMessage.json');
+const { messageId, channelId } = JSON.parse(fs.readFileSync(reactionDataPath, 'utf8'));
+
+const emojiRoleMap = {
+  '🚺': '1371560724568080465',
+  '🚹': '1371561017091424359',
+  '⚪': '1371561132426530976',
+};
+
 module.exports = {
-    name: 'messageReactionAdd',
-    async execute(reaction, user) {
-      // Ensure the reaction is on the correct message
-      if (reaction.message.author.bot) return; // Ignore bot reactions
-      if (reaction.partial) await reaction.fetch(); // Handle partial reactions
-  
-      // Check if the message is the one with reaction roles
-      const reactionRolesMessageId = 'your_message_id'; // The ID of the message sent by the bot with the reaction roles
-      if (reaction.message.id !== reactionRolesMessageId) return;
-  
-      const roleMap = {
-        '👍': 'RoleID1', // Emoji '👍' gives Role 1
-        '👎': 'RoleID2', // Emoji '👎' gives Role 2
-      };
-  
-      // Get the role to assign based on the emoji
-      const roleId = roleMap[reaction.emoji.name];
-      if (!roleId) return; // If no role is mapped to the emoji, exit
-  
-      try {
-        const member = await reaction.message.guild.members.fetch(user.id);
-        const role = await reaction.message.guild.roles.fetch(roleId);
-  
-        if (member && role) {
-          await member.roles.add(role);
-          console.log(`${user.tag} has been assigned the ${role.name} role!`);
-        }
-      } catch (error) {
-        console.error('Failed to assign role:', error);
-      }
-    },
-  };
-  
+  name: Events.MessageReactionAdd,
+  async execute(reaction, user) {
+    if (reaction.message.id !== messageId || reaction.message.channelId !== channelId) return;
+    if (user.bot) return;
+
+    const roleId = emojiRoleMap[reaction.emoji.name];
+    if (!roleId) return;
+
+    const guild = reaction.message.guild;
+    const member = await guild.members.fetch(user.id);
+    await member.roles.add(roleId).catch(console.error);
+    console.log(`✅ Added role ${roleId} to ${user.tag}`);
+  },
+};

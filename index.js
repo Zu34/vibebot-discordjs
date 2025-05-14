@@ -1,91 +1,14 @@
 
-// require('dotenv').config();
-// const { Client, Collection, GatewayIntentBits } = require('discord.js');
-// const fs = require('node:fs');
-
-// const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
-// client.commands = new Collection();
-// const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-// for (const file of commandFiles) {
-//   const command = require(`./commands/${file}`);
-//   client.commands.set(command.data.name, command);
-// }
-
-// client.once('ready', () => {
-//   console.log(`Logged in as ${client.user.tag}`);
-// });
-
-// client.on('interactionCreate', async interaction => {
-//   if (!interaction.isChatInputCommand()) return;
-
-//   const command = client.commands.get(interaction.commandName);
-//   if (!command) return;
-
-//   try {
-//     await command.execute(interaction);
-//   } catch (error) {
-//     console.error(error);
-//     await interaction.reply({ content: 'There was an error executing this command!', ephemeral: true });
-//   }
-// });
-
-// client.login(process.env.DISCORD_TOKEN);
-
-
-// require('dotenv').config(); // Load your .env file
-
-// const { Client, GatewayIntentBits, Collection } = require('discord.js');
-// const fs = require('fs');
-
-// const client = new Client({
-//   intents: [GatewayIntentBits.Guilds],
-// });
-
-// client.commands = new Collection();
-// const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-// // Load each command
-// for (const file of commandFiles) {
-//   const command = require(`./commands/${file}`);
-//   client.commands.set(command.data.name, command);
-// }
-
-// // Event: Bot is ready
-// client.once('ready', () => {
-//   console.log(`✅ Logged in as ${client.user.tag}`);
-// });
-
-// // Event: Slash command interaction
-// client.on('interactionCreate', async interaction => {
-//   if (!interaction.isChatInputCommand()) return;
-
-//   const command = client.commands.get(interaction.commandName);
-//   if (!command) return;
-
-//   try {
-//     await command.execute(interaction);
-//   } catch (error) {
-//     console.error(error);
-//     await interaction.reply({
-//       content: 'There was an error while executing this command!',
-//       ephemeral: true,
-//     });
-//   }
-// });
-
-// // Start the bot
-// client.login(process.env.DISCORD_TOKEN);
-
-
-require('dotenv').config(); // Load your .env file
+require('dotenv').config(); 
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path'); // Import path module to resolve nested paths
 
 const client = new Client({
+
+  partials: ['MESSAGE', 'CHANNEL', 'REACTION'], // Required!
+  
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
@@ -93,14 +16,24 @@ const client = new Client({
     GatewayIntentBits.GuildPresences,
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions, // ADD THIS!
   ],
 });
 
+client.reactionRoleMessageId = null; 
 client.commands = new Collection();
 
 
+const reactionDataPath = path.join(__dirname, 'reactionMessage.json');
 
-// Inside after creating client
+if (fs.existsSync(reactionDataPath)) {
+  const data = JSON.parse(fs.readFileSync(reactionDataPath, 'utf8'));
+  client.reactionRoleMessageId = data.messageId;
+  console.log(`📌 Loaded reaction message ID: ${client.reactionRoleMessageId}`);
+}
+
+
+
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
@@ -113,21 +46,21 @@ for (const file of eventFiles) {
   }
 }
 
-// Function to recursively read command files
+
 function getCommandFiles(dir) {
   const files = fs.readdirSync(dir, { withFileTypes: true });
   return files.flatMap(file => {
     const filePath = path.join(dir, file.name);
     if (file.isDirectory()) {
-      return getCommandFiles(filePath); // Recurse into directories
+      return getCommandFiles(filePath); 
     } else if (file.name.endsWith('.js')) {
-      return [filePath]; // Return file path for .js files
+      return [filePath]; 
     }
     return [];
   });
 }
 
-const commandFiles = getCommandFiles('./commands'); // Get all command files recursively
+const commandFiles = getCommandFiles('./commands');
 
 // Load each command
 for (const filePath of commandFiles) {
@@ -135,12 +68,12 @@ for (const filePath of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-// Event: Bot is ready
+
 client.once('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
-// Event: Slash command interaction
+
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -158,5 +91,5 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// Start the bot
+
 client.login(process.env.DISCORD_TOKEN);

@@ -1,36 +1,4 @@
-// // events/guildMemberAdd.js
-// const axios = require('axios');
 
-// module.exports = {
-//   name: 'guildMemberAdd',
-//   async execute(member) {
-//     const welcomeChannelId = 'YOUR_CHANNEL_ID_HERE'; // Replace with your welcome channel ID
-//     const channel = member.guild.channels.cache.get(welcomeChannelId);
-
-//     if (!channel) return;
-
-//     try {
-//       const response = await axios.get('https://api.quotable.io/random');
-//       const quote = response.data.content;
-
-//       const welcomeMessage = `
-// 👋 Welcome, <@${member.id}>!
-// 🎉 We're thrilled to have you in **${member.guild.name}**!
-
-// 📜 Be sure to check out <#rules-channel-id> and <#introductions-channel-id>!
-// 💬 Join the chat in <#general-channel-id>.
-
-// 💡 *"${quote}"*
-
-// Enjoy your stay! 🚀
-//       `;
-
-//       channel.send(welcomeMessage);
-//     } catch (error) {
-//       console.error('Failed to fetch quote or send welcome message:', error);
-//     }
-//   }
-// };
 
 const axios = require('axios');
 

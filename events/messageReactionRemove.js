@@ -1,12 +1,11 @@
 module.exports = {
     name: 'messageReactionRemove',
     async execute(reaction, user) {
-      // Ensure the reaction is on the correct message
       if (reaction.message.author.bot) return; // Ignore bot reactions
       if (reaction.partial) await reaction.fetch(); // Handle partial reactions
   
       // Check if the message is the one with reaction roles
-      const reactionRolesMessageId = 'your_message_id'; // The ID of the message sent by the bot with the reaction roles
+      const reactionRolesMessageId = '1371531341362892880'; // The ID of the message sent by the bot with the reaction roles
       if (reaction.message.id !== reactionRolesMessageId) return;
   
       const roleMap = {
