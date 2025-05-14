@@ -1,32 +1,4 @@
-// const { SlashCommandBuilder } = require('discord.js');
-// const axios = require('axios'); // To make HTTP requests
 
-// module.exports = {
-//   data: new SlashCommandBuilder()
-//     .setName('userinfo')
-//     .setDescription('Get information about yourself'),
-
-//   async execute(interaction) {
-//     const user = interaction.user;
-
-//     try {
-//       // Fetch a random compliment using an API
-//       const response = await axios.get('https://api.quotable.io/random');
-//       const compliment = response.data.content; // Assuming the API provides a "content" field for the quote
-
-//       await interaction.reply({
-//         content: `**Your username**: ${user.username}\n**Your ID**: ${user.id}\n**Your Avatar**: ${user.displayAvatarURL()}\n**Compliment**: ${compliment}`,
-//         ephemeral: false
-//       });
-//     } catch (error) {
-//       console.error('Error fetching compliment:', error);
-//       await interaction.reply({
-//         content: 'Sorry, I couldn\'t fetch a compliment for you right now.',
-//         ephemeral: true
-//       });
-//     }
-//   }
-// };
 
 const { SlashCommandBuilder } = require('discord.js');
 
