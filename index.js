@@ -7,6 +7,8 @@ const path = require('path'); // Import path module to resolve nested paths
 const cron = require('node-cron');
 // const { sendDailyFacts } = require('./commands/subscription/subscribe'); // Import daily facts function
 const { sendDailyFacts, fetchRandomFact } = require('./commands/subscription/factUtils');
+const { checkAndCelebrateBirthdays } = require('./commands/utility/birthdayUtils');
+
 
 const client = new Client({
   partials: ['MESSAGE', 'CHANNEL', 'REACTION'], // Required!
@@ -83,9 +85,19 @@ client.once('ready', () => {
     } catch (error) {
       console.error('❌ Error sending daily facts:', error);
     }
-  }, {
+  }, 
+  {
     timezone: 'America/New_York' // set your timezone here
   });
+
+
+cron.schedule('0 9 * * *', async () => {
+  await checkAndCelebrateBirthdays(client);
+},
+{
+  timezone: 'America/New_York'
+});
+
 });
 
 
