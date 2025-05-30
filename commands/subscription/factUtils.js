@@ -1,4 +1,6 @@
 // commands/subscription/factUtils.js
+const fs = require('fs'); 
+
 const axios = require('axios');
 
 async function fetchRandomFact(category) {
@@ -39,7 +41,17 @@ async function sendDailyFacts(client, dataPath) {
   for (const userId of subscribersData.users) {
     try {
       const user = await client.users.fetch(userId);
-      const fact = await fetchRandomFact('9');
+      console.error(`Failed to send daily fact to user ${userId}:`, error);
+      const fact = await fetchRandomFact();
+      if (!fact || !fact.text) {
+        console.warn(`No fact returned for user ${userId}. Skipping.`);
+        continue;
+      }
+      if (typeof userId !== 'string' || !userId.match(/^\d+$/)) {
+        console.warn(`⚠️ Invalid user ID format:`, userId);
+        continue;
+      }
+            
       await user.send(`Here is your daily fact: ${fact.text}`);
     } catch (error) {
       console.error(`Failed to send daily fact to user ${userId}:`, error);
